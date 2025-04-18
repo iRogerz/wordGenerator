@@ -9,53 +9,66 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @State private var navigationPath = NavigationPath()
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        NavigationStack(path: $navigationPath) {
+            VStack(spacing: 30) {
+                Text("教育部字詞生產器")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.bottom, 50)
+                
+                Button(action: {
+                    navigationPath.append("gameMode")
+                }) {
+                    ModeButton(title: "遊玩模式", description: "限時挑戰，考驗反應力")
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+                
+                Button(action: {
+                    navigationPath.append("generatorMode")
+                }) {
+                    ModeButton(title: "一般模式", description: "自由產生字詞")
                 }
             }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            .padding()
+            .navigationDestination(for: String.self) { destination in
+                switch destination {
+                case "gameMode":
+                    GameModeView(navigationPath: $navigationPath)
+                case "generatorMode":
+                    GeneratorModeView(navigationPath: $navigationPath)
+                default:
+                    EmptyView()
+                }
+            }
+            .navigationDestination(for: GameConfig.self) { config in
+                GamePlayView(timeLimit: config.timeLimit, wordLengths: config.wordLengths, navigationPath: $navigationPath)
             }
         }
     }
 }
 
+struct ModeButton: View {
+    let title: String
+    let description: String
+    
+    var body: some View {
+        VStack {
+            Text(title)
+                .font(.title2)
+                .fontWeight(.bold)
+            Text(description)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.blue.opacity(0.1))
+        .cornerRadius(10)
+    }
+}
+
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
