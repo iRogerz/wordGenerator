@@ -24,6 +24,7 @@ struct GamePlayView: View {
     @State private var timer: Timer?
     @State private var countdown = 3
     @State private var isGameStarted = false
+    @State private var hasJudged = false
     
     var body: some View {
         ZStack {
@@ -144,42 +145,43 @@ struct GamePlayView: View {
             
             let z = acceleration.z
             let flipThreshold = 0.7    // 翻轉門檻
-            let uprightThreshold = 0.3 // 回正門檻（小於此值代表回正）
+            let uprightThreshold = 0.3 // 回正門檻
             
-            // 1. 使用者翻轉：進入顛倒狀態
-            if !isUpsideDown && abs(z) > flipThreshold {
-                isUpsideDown = true
-                lastAcceleration = z
+            // 如果手機已經歸位，重置狀態並出下一題
+            if abs(z) < uprightThreshold {
+                if hasJudged {
+                    hasJudged = false
+                    isUpsideDown = false
+                    resultColor = .clear
+                    generateNewWord()
+                }
+                return
             }
             
-            // 2. 使用者已經翻過去，且回正，才進行處理
-            if isUpsideDown && abs(z) < uprightThreshold && canFlip {
-                // 禁止在冷卻期間觸發
-                canFlip = false
-                isUpsideDown = false
+            // 如果已經判定過，不再重複判定
+            if hasJudged {
+                return
+            }
+            
+            // 當手機傾斜超過門檻時，立即判定
+            if abs(z) > flipThreshold {
+                hasJudged = true
+                isUpsideDown = true
                 
-                // 判斷方向：答對還是答錯
-                if lastAcceleration > 0 {
-                    // 向下翻回正：答對
+                if z > 0 {
+                    // 向下傾斜：答對
                     isCorrect = true
                     score += 1
                     correctCount += 1
                     resultColor = .green
                 } else {
-                    // 向上翻回正：答錯
+                    // 向上傾斜：答錯
                     isCorrect = false
                     wrongCount += 1
                     resultColor = .red
                 }
                 
                 AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-                
-                // 冷卻一秒後：重置狀態 + 出下一題
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                    canFlip = true
-                    resultColor = .clear
-                    generateNewWord()
-                }
             }
         }
     }
