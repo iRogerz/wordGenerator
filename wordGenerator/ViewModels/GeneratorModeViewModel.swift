@@ -1,0 +1,31 @@
+import SwiftUI
+
+class GeneratorModeViewModel: ObservableObject {
+    @Published var currentWord: Word?
+    @Published var showHint = false
+    
+    private var selectedType: Int = 0
+    
+    func updateSelectedType(_ type: Int) {
+        selectedType = type
+    }
+    
+    func generateNewWord() {
+        let type: WordType?
+        switch selectedType {
+        case 0:
+            type = .phrase
+        case 1:
+            type = .idiom
+        default:
+            type = nil
+        }
+        
+        currentWord = WordManager.shared.getRandomWord(type: type)
+        showHint = false
+    }
+    
+    func toggleHint() {
+        showHint.toggle()
+    }
+} 
