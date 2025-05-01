@@ -14,11 +14,11 @@ class GeneratorModeViewModel: ObservableObject {
         let type: WordType?
         switch selectedType {
         case 0:
-            type = .phrase
+          type = .simple
         case 1:
-            type = .idiom
+          type = .idiom
         default:
-            type = nil
+          type = nil
         }
         
         currentWord = WordManager.shared.getRandomWord(type: type)

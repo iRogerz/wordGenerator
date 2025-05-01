@@ -6,7 +6,7 @@ struct GeneratorModeView: View {
     @State private var currentWord: Word?
     @State private var showHint = false
     
-    let types = ["詞語", "成語", "隨機"]
+    let types = ["詞語", "成語"]
     
     var body: some View {
         VStack {
@@ -73,7 +73,7 @@ struct GeneratorModeView: View {
         let type: WordType?
         switch selectedType {
         case 0:
-            type = .phrase
+            type = .simple
         case 1:
             type = .idiom
         default:
