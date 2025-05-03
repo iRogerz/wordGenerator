@@ -12,7 +12,8 @@ import SwiftData
 struct wordGeneratorApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            SimpleWord.self,
+            IdiomWord.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

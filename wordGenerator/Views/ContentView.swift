@@ -10,11 +10,12 @@ import SwiftData
 
 struct ContentView: View {
     @State private var navigationPath = NavigationPath()
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 30) {
-                Text("教育部字詞生產器")
+                Text("猜詞王")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.bottom, 50)
@@ -45,6 +46,10 @@ struct ContentView: View {
             .navigationDestination(for: GameConfig.self) { config in
                 GamePlayView(timeLimit: config.timeLimit, wordLengths: config.wordLengths, navigationPath: $navigationPath)
             }
+        }
+        .onAppear {
+            DataImporter.importIfNeeded(context: modelContext)
+            WordManager.shared.loadAllWords(context: modelContext)
         }
     }
 }

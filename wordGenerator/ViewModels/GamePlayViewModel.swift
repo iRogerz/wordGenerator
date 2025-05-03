@@ -1,6 +1,7 @@
 import SwiftUI
 import CoreMotion
 import AudioToolbox
+import SwiftData
 
 class GamePlayViewModel: ObservableObject {
     // MARK: - Published Properties
@@ -62,7 +63,7 @@ class GamePlayViewModel: ObservableObject {
         remainingTime = timeLimit
         startTimer()
         startMotionUpdates()
-        generateNewWord()
+        // generateNewWord() 需由外部呼叫
     }
     
     private func startTimer() {
@@ -95,7 +96,7 @@ class GamePlayViewModel: ObservableObject {
                     self.hasJudged = false
                     self.isUpsideDown = false
                     self.resultColor = .clear
-                    self.generateNewWord()
+                    // 這裡需要外部呼叫 generateNewWord()
                 }
                 return
             }
@@ -132,7 +133,8 @@ class GamePlayViewModel: ObservableObject {
         motionManager.stopAccelerometerUpdates()
     }
     
-    private func generateNewWord() {
+    // 只從快取 array 取資料
+    func generateNewWord() {
         currentWord = WordManager.shared.getRandomWord(lengths: wordLengths)
     }
 } 

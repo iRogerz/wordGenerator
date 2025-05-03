@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 class GeneratorModeViewModel: ObservableObject {
     @Published var currentWord: GameWord?

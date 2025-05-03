@@ -1,10 +1,12 @@
 import SwiftUI
+import SwiftData
 
 struct GeneratorModeView: View {
     @Binding var navigationPath: NavigationPath
     @State private var selectedType = 0
     @State private var currentWord: GameWord?
     @State private var showHint = false
+    @Environment(\.modelContext) private var modelContext
     
     let types = ["詞語", "成語"]
     

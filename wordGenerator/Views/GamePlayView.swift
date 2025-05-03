@@ -1,11 +1,13 @@
 import SwiftUI
 import CoreMotion
 import AudioToolbox
+import SwiftData
 
 struct GamePlayView: View {
     let timeLimit: Int
     let wordLengths: Set<Int>
     @Binding var navigationPath: NavigationPath
+    @Environment(\.modelContext) private var modelContext
     
     @State private var currentWord: GameWord?
     @State private var remainingTime: Int = 0
