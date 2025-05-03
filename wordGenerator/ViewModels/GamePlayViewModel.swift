@@ -4,7 +4,7 @@ import AudioToolbox
 
 class GamePlayViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var currentWord: Word?
+    @Published var currentWord: GameWord?
     @Published var remainingTime: Int = 0
     @Published var isGameOver = false
     @Published var score = 0

@@ -3,7 +3,7 @@ import SwiftUI
 struct GeneratorModeView: View {
     @Binding var navigationPath: NavigationPath
     @State private var selectedType = 0
-    @State private var currentWord: Word?
+    @State private var currentWord: GameWord?
     @State private var showHint = false
     
     let types = ["詞語", "成語"]

@@ -7,7 +7,7 @@ struct GamePlayView: View {
     let wordLengths: Set<Int>
     @Binding var navigationPath: NavigationPath
     
-    @State private var currentWord: Word?
+    @State private var currentWord: GameWord?
     @State private var remainingTime: Int = 0
     @State private var isGameOver = false
     @State private var score = 0
@@ -25,6 +25,7 @@ struct GamePlayView: View {
     @State private var countdown = 3
     @State private var isGameStarted = false
     @State private var hasJudged = false
+    @State private var playedWords: [(word: GameWord, isCorrect: Bool)] = []
     
     var body: some View {
         ZStack {
@@ -90,7 +91,7 @@ struct GamePlayView: View {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
             }
-            startCountdown()
+            startNewGame()
         }
         .onDisappear {
             stopMotionUpdates()
@@ -101,8 +102,42 @@ struct GamePlayView: View {
             }
         }
         .sheet(isPresented: $isGameOver) {
-            GameOverView(score: score, correctCount: correctCount, wrongCount: wrongCount, navigationPath: $navigationPath)
+            GameOverView(
+                score: score,
+                correctCount: correctCount,
+                wrongCount: wrongCount,
+                playedWords: playedWords,
+                navigationPath: $navigationPath,
+                onRestart: {
+                    isGameOver = false
+                    startNewGame()
+                }
+            )
         }
+    }
+    
+    private func startNewGame() {
+        // 停止現有的計時器和動作監測
+        timer?.invalidate()
+        stopMotionUpdates()
+        
+        // 重置所有遊戲狀態
+        score = 0
+        correctCount = 0
+        wrongCount = 0
+        playedWords = []
+        remainingTime = timeLimit
+        countdown = 3
+        isGameStarted = false
+        hasJudged = false
+        resultColor = .clear
+        currentWord = nil
+        
+        // 鎖定橫向
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
+        }
+        startCountdown()
     }
     
     private func startCountdown() {
@@ -174,11 +209,17 @@ struct GamePlayView: View {
                     score += 1
                     correctCount += 1
                     resultColor = .green
+                    if let word = currentWord {
+                        playedWords.append((word: word, isCorrect: true))
+                    }
                 } else {
                     // 向上傾斜：答錯
                     isCorrect = false
                     wrongCount += 1
                     resultColor = .red
+                    if let word = currentWord {
+                        playedWords.append((word: word, isCorrect: false))
+                    }
                 }
                 
                 AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
@@ -199,48 +240,90 @@ struct GameOverView: View {
     let score: Int
     let correctCount: Int
     let wrongCount: Int
+    let playedWords: [(word: GameWord, isCorrect: Bool)]
     @Binding var navigationPath: NavigationPath
+    let onRestart: () -> Void
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text("遊戲結束")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text("最終分數：\(score)")
-                .font(.title2)
-            
-            HStack(spacing: 30) {
-                VStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 30))
-                        .foregroundColor(.green)
-                    Text("\(correctCount)")
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    Text("最終分數：\(score)")
                         .font(.title2)
+                    
+                    HStack(spacing: 30) {
+                        VStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.green)
+                            Text("\(correctCount)")
+                                .font(.title2)
+                        }
+                        
+                        VStack {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.red)
+                            Text("\(wrongCount)")
+                                .font(.title2)
+                        }
+                    }
+                    .padding()
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("答題記錄")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.bottom, 5)
+                        
+                        ForEach(playedWords.indices, id: \.self) { index in
+                            HStack {
+                                Text("\(index + 1). \(playedWords[index].word.name)")
+                                    .font(.body)
+                                
+                                Spacer()
+                                
+                                Image(systemName: playedWords[index].isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                    .foregroundColor(playedWords[index].isCorrect ? .green : .red)
+                            }
+                            .padding(.vertical, 5)
+                            .padding(.horizontal)
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                    }
+                    .padding()
+                }
+                .padding()
+            }
+            .navigationTitle("遊戲結束")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        navigationPath.removeLast(navigationPath.count)
+                    }) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                            Text("返回主畫面")
+                        }
+                    }
                 }
                 
-                VStack {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 30))
-                        .foregroundColor(.red)
-                    Text("\(wrongCount)")
-                        .font(.title2)
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        dismiss()
+                        onRestart()
+                    }) {
+                        HStack {
+                            Text("再玩一次")
+                            Image(systemName: "arrow.clockwise")
+                        }
+                    }
                 }
             }
-            .padding()
-            
-            Button(action: {
-                navigationPath.removeLast(navigationPath.count)
-            }) {
-                Text("返回主畫面")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
         }
-        .padding()
     }
 }
 

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 enum WordType: String, Codable, CaseIterable {
     case simple = "一般詞語"
@@ -8,15 +9,20 @@ enum WordType: String, Codable, CaseIterable {
 struct RawWord: Codable {
     let name: String
     let note: String
-    let idiom: IdiomWord?
+    let zhuyin: String
+    let interpretation: String?
+    let allusionDescription: String?
+    let usageDescription: String?
+    let usageCategory: String?
+    let example: String?
     let mainIdioms: Bool?
 }
 
 class WordManager {
     static let shared = WordManager()
     
-    private var words: [Word] = []
-    private var idioms: [Word] = []
+    private var words: [GameWord] = []
+    private var idioms: [GameWord] = []
     
     private init() {
         loadWords()
@@ -32,7 +38,7 @@ class WordManager {
                 words = rawWords
                     .filter { $0.name.count >= 2 }
                     .map { rawWord in
-                        return Word(name: rawWord.name, note: rawWord.note, type: .simple, idiom: nil)
+                        return GameWord(name: rawWord.name, note: rawWord.note, type: .simple, idiom: nil)
                     }
                 print("成功載入 \(words.count) 個詞語")
             } catch {
@@ -51,7 +57,7 @@ class WordManager {
                 idioms = rawWords
                     .filter { $0.mainIdioms == true }
                     .map { rawWord in
-                        return Word(name: rawWord.name, note: rawWord.note, type: .idiom, idiom: rawWord.idiom)
+                        return GameWord(name: rawWord.name, note: rawWord.note, type: .idiom, idiom: nil)
                     }
                 print("成功載入 \(idioms.count) 個成語")
             } catch {
@@ -62,8 +68,8 @@ class WordManager {
         }
     }
     
-    func getRandomWord(type: WordType? = nil, lengths: Set<Int>? = nil) -> Word? {
-        var sourceWords: [Word]
+    func getRandomWord(type: WordType? = nil, lengths: Set<Int>? = nil) -> GameWord? {
+        var sourceWords: [GameWord]
         
         if type == .idiom {
             sourceWords = idioms
@@ -81,18 +87,18 @@ class WordManager {
     
 }
 
-struct Word: Codable {
+struct GameWord: Codable {
     let name: String
     let note: String
     let type: WordType
-    let idiom: IdiomWord?
+    let idiom: IdiomDetail?
 }
 
-struct IdiomWord: Codable {
-    let interpretation: String
-    let allusionDescription: String
-    let usageDescription: String
-    let example: String
-    let usageCategory: String
+struct IdiomDetail: Codable {
+    let interpretation: String?
+    let allusionDescription: String?
+    let usageDescription: String?
+    let example: String?
+    let usageCategory: String?
     let mainIdioms: Bool
-} 
+}

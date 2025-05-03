@@ -1,7 +1,7 @@
 import SwiftUI
 
 class GeneratorModeViewModel: ObservableObject {
-    @Published var currentWord: Word?
+    @Published var currentWord: GameWord?
     @Published var showHint = false
     
     private var selectedType: Int = 0
