@@ -32,6 +32,39 @@ struct GameModeView: View {
                 .onChange(of: viewModel.selectedWordTypes) { newValue in
                     viewModel.updateWordTypes(newValue)
                 }
+                
+                if viewModel.selectedWordTypes == [.simple] {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("詞語長度")
+                            .font(.headline)
+                            .padding(.bottom, 4)
+                        VStack(spacing: 8) {
+                            ForEach(WordLengthOption.allCases, id: \.self) { option in
+                                Toggle(isOn: Binding(
+                                    get: { viewModel.selectedWordLengths.contains(option) },
+                                    set: { isOn in
+                                        if isOn {
+                                            viewModel.selectedWordLengths.insert(option)
+                                        } else {
+                                            viewModel.selectedWordLengths.remove(option)
+                                        }
+                                    }
+                                )) {
+                                    Text(option.displayText)
+                                        .font(.body)
+                                }
+                                .toggleStyle(.automatic)
+                            }
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.systemGray6))
+                        )
+                    }
+                    .padding(.top, 8)
+                }
             }
             .padding()
             

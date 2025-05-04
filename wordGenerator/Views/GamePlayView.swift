@@ -7,49 +7,36 @@ struct GamePlayView: View {
     let timeLimit: Int
     let wordLengths: Set<Int>
     @Binding var navigationPath: NavigationPath
-    @Environment(\.modelContext) private var modelContext
+    @StateObject private var viewModel: GamePlayViewModel
     
-    @State private var currentWord: GameWord?
-    @State private var remainingTime: Int = 0
-    @State private var isGameOver = false
-    @State private var score = 0
-    @State private var motionManager = CMMotionManager()
-    @State private var lastAcceleration: Double = 0
-    @State private var isCorrect = false
-    @State private var isPass = false
-    @State private var correctCount = 0
-    @State private var wrongCount = 0
-    @State private var canFlip = true
-    @State private var isUpsideDown = false
-    @State private var showResult = false
-    @State private var resultColor: Color = .clear
-    @State private var timer: Timer?
-    @State private var countdown = 3
-    @State private var isGameStarted = false
-    @State private var hasJudged = false
-    @State private var playedWords: [(word: GameWord, isCorrect: Bool)] = []
+    init(timeLimit: Int, wordLengths: Set<Int>, navigationPath: Binding<NavigationPath>) {
+        self.timeLimit = timeLimit
+        self.wordLengths = wordLengths
+        self._navigationPath = navigationPath
+        _viewModel = StateObject(wrappedValue: GamePlayViewModel(timeLimit: timeLimit, wordLengths: wordLengths))
+    }
     
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
             
-            if !isGameStarted {
+            if !viewModel.isGameStarted {
                 VStack {
-                    Text("\(countdown)")
+                    Text("\(viewModel.countdown)")
                         .font(.system(size: 120))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
             } else {
                 VStack {
-                    Text("剩餘時間：\(remainingTime)秒")
+                    Text("剩餘時間：\(viewModel.remainingTime)秒")
                         .font(.title)
                         .foregroundColor(.white)
                         .padding()
                     
                     Spacer()
                     
-                    if let word = currentWord {
+                    if let word = viewModel.currentWord {
                         Text(word.name)
                             .font(.system(size: 60))
                             .fontWeight(.bold)
@@ -65,7 +52,7 @@ struct GamePlayView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 30))
                                 .foregroundColor(.green)
-                            Text("\(correctCount)")
+                            Text("\(viewModel.correctCount)")
                                 .font(.title2)
                                 .foregroundColor(.white)
                         }
@@ -74,7 +61,7 @@ struct GamePlayView: View {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 30))
                                 .foregroundColor(.red)
-                            Text("\(wrongCount)")
+                            Text("\(viewModel.wrongCount)")
                                 .font(.title2)
                                 .foregroundColor(.white)
                         }
@@ -85,7 +72,7 @@ struct GamePlayView: View {
         }
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(resultColor, lineWidth: 5)
+                .stroke(viewModel.resultColor, lineWidth: 5)
                 .padding()
         )
         .onAppear {
@@ -93,148 +80,28 @@ struct GamePlayView: View {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
             }
-            startNewGame()
+            viewModel.startNewGame()
         }
         .onDisappear {
-            stopMotionUpdates()
-            timer?.invalidate()
+            viewModel.stopGame()
             // 解除鎖定
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
             }
         }
-        .sheet(isPresented: $isGameOver) {
+        .sheet(isPresented: $viewModel.isGameOver) {
             GameOverView(
-                score: score,
-                correctCount: correctCount,
-                wrongCount: wrongCount,
-                playedWords: playedWords,
+                score: viewModel.score,
+                correctCount: viewModel.correctCount,
+                wrongCount: viewModel.wrongCount,
+                playedWords: viewModel.playedWords,
                 navigationPath: $navigationPath,
                 onRestart: {
-                    isGameOver = false
-                    startNewGame()
+                    viewModel.isGameOver = false
+                    viewModel.startNewGame()
                 }
             )
         }
-    }
-    
-    private func startNewGame() {
-        // 停止現有的計時器和動作監測
-        timer?.invalidate()
-        stopMotionUpdates()
-        
-        // 重置所有遊戲狀態
-        score = 0
-        correctCount = 0
-        wrongCount = 0
-        playedWords = []
-        remainingTime = timeLimit
-        countdown = 3
-        isGameStarted = false
-        hasJudged = false
-        resultColor = .clear
-        currentWord = nil
-        
-        // 鎖定橫向
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
-        }
-        startCountdown()
-    }
-    
-    private func startCountdown() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            if countdown > 1 {
-                countdown -= 1
-            } else {
-                timer.invalidate()
-                isGameStarted = true
-                startGame()
-            }
-        }
-    }
-    
-    private func startGame() {
-        remainingTime = timeLimit
-        startTimer()
-        startMotionUpdates()
-        generateNewWord()
-    }
-    
-    private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            if remainingTime > 0 {
-                remainingTime -= 1
-            } else {
-                timer.invalidate()
-                stopMotionUpdates()
-                isGameOver = true
-            }
-        }
-    }
-    
-    private func startMotionUpdates() {
-        guard motionManager.isAccelerometerAvailable else { return }
-        
-        motionManager.accelerometerUpdateInterval = 0.1
-        motionManager.startAccelerometerUpdates(to: .main) { data, _ in
-            guard let acceleration = data?.acceleration else { return }
-            
-            let z = acceleration.z
-            let flipThreshold = 0.7    // 翻轉門檻
-            let uprightThreshold = 0.3 // 回正門檻
-            
-            // 如果手機已經歸位，重置狀態並出下一題
-            if abs(z) < uprightThreshold {
-                if hasJudged {
-                    hasJudged = false
-                    isUpsideDown = false
-                    resultColor = .clear
-                    generateNewWord()
-                }
-                return
-            }
-            
-            // 如果已經判定過，不再重複判定
-            if hasJudged {
-                return
-            }
-            
-            // 當手機傾斜超過門檻時，立即判定
-            if abs(z) > flipThreshold {
-                hasJudged = true
-                isUpsideDown = true
-                
-                if z > 0 {
-                    // 向下傾斜：答對
-                    isCorrect = true
-                    score += 1
-                    correctCount += 1
-                    resultColor = .green
-                    if let word = currentWord {
-                        playedWords.append((word: word, isCorrect: true))
-                    }
-                } else {
-                    // 向上傾斜：答錯
-                    isCorrect = false
-                    wrongCount += 1
-                    resultColor = .red
-                    if let word = currentWord {
-                        playedWords.append((word: word, isCorrect: false))
-                    }
-                }
-                
-                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-            }
-        }
-    }
-    
-    private func stopMotionUpdates() {
-        motionManager.stopAccelerometerUpdates()
-    }
-    
-    private func generateNewWord() {
-        currentWord = WordManager.shared.getRandomWord(lengths: wordLengths)
     }
 }
 

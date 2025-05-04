@@ -15,6 +15,9 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 30) {
+              
+              Spacer()
+              
                 Text("猜詞王")
                     .font(.largeTitle)
                     .fontWeight(.bold)
@@ -31,6 +34,13 @@ struct ContentView: View {
                 }) {
                     ModeButton(title: "一般模式", description: "自由產生字詞")
                 }
+              
+              Spacer()
+              
+              Text("資料來源：教育部《國語辭典簡編本》, 《成語典》")
+                .font(.footnote)
+                .foregroundColor(.gray.opacity(0.8))
+              
             }
             .padding()
             .navigationDestination(for: String.self) { destination in

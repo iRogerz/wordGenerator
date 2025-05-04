@@ -16,6 +16,7 @@ class GamePlayViewModel: ObservableObject {
     @Published var resultColor: Color = .clear
     @Published var countdown = 3
     @Published var isGameStarted = false
+    @Published var playedWords: [(word: GameWord, isCorrect: Bool)] = []
     
     // MARK: - Private Properties
     private let timeLimit: Int
@@ -25,7 +26,7 @@ class GamePlayViewModel: ObservableObject {
     private var hasJudged = false
     
     // MARK: - Constants
-    private let flipThreshold = 0.7    // 翻轉門檻
+    private let flipThreshold = 0.75    // 翻轉門檻（調大）
     private let uprightThreshold = 0.3 // 回正門檻
     
     // MARK: - Initialization
@@ -44,11 +45,30 @@ class GamePlayViewModel: ObservableObject {
         timer?.invalidate()
     }
     
+    func startNewGame() {
+        timer?.invalidate()
+        stopMotionUpdates()
+        score = 0
+        correctCount = 0
+        wrongCount = 0
+        playedWords = []
+        remainingTime = timeLimit
+        countdown = 3
+        isGameStarted = false
+        hasJudged = false
+        resultColor = .clear
+        currentWord = nil
+        startCountdown()
+    }
+    
+    func generateNewWord() {
+        currentWord = WordManager.shared.getRandomWord(lengths: wordLengths)
+    }
+    
     // MARK: - Private Methods
     private func startCountdown() {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
             guard let self = self else { return }
-            
             if self.countdown > 1 {
                 self.countdown -= 1
             } else {
@@ -63,13 +83,12 @@ class GamePlayViewModel: ObservableObject {
         remainingTime = timeLimit
         startTimer()
         startMotionUpdates()
-        // generateNewWord() 需由外部呼叫
+        generateNewWord()
     }
     
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
             guard let self = self else { return }
-            
             if self.remainingTime > 0 {
                 self.remainingTime -= 1
             } else {
@@ -82,48 +101,46 @@ class GamePlayViewModel: ObservableObject {
     
     private func startMotionUpdates() {
         guard motionManager.isAccelerometerAvailable else { return }
-        
         motionManager.accelerometerUpdateInterval = 0.1
         motionManager.startAccelerometerUpdates(to: .main) { [weak self] data, _ in
-            guard let self = self,
-                  let acceleration = data?.acceleration else { return }
-            
+            guard let self = self, let acceleration = data?.acceleration else { return }
             let z = acceleration.z
-            
             // 如果手機已經歸位，重置狀態並出下一題
             if abs(z) < self.uprightThreshold {
                 if self.hasJudged {
                     self.hasJudged = false
                     self.isUpsideDown = false
                     self.resultColor = .clear
-                    // 這裡需要外部呼叫 generateNewWord()
+                    self.generateNewWord()
                 }
                 return
             }
-            
             // 如果已經判定過，不再重複判定
             if self.hasJudged {
                 return
             }
-            
             // 當手機傾斜超過門檻時，立即判定
             if abs(z) > self.flipThreshold {
                 self.hasJudged = true
                 self.isUpsideDown = true
-                
                 if z > 0 {
                     // 向下傾斜：答對
                     self.isCorrect = true
                     self.score += 1
                     self.correctCount += 1
                     self.resultColor = .green
+                    if let word = self.currentWord {
+                        self.playedWords.append((word: word, isCorrect: true))
+                    }
                 } else {
                     // 向上傾斜：答錯
                     self.isCorrect = false
                     self.wrongCount += 1
                     self.resultColor = .red
+                    if let word = self.currentWord {
+                        self.playedWords.append((word: word, isCorrect: false))
+                    }
                 }
-                
                 AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
             }
         }
@@ -131,10 +148,5 @@ class GamePlayViewModel: ObservableObject {
     
     private func stopMotionUpdates() {
         motionManager.stopAccelerometerUpdates()
-    }
-    
-    // 只從快取 array 取資料
-    func generateNewWord() {
-        currentWord = WordManager.shared.getRandomWord(lengths: wordLengths)
     }
 } 

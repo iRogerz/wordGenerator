@@ -4,8 +4,9 @@ import SwiftData
 class GeneratorModeViewModel: ObservableObject {
     @Published var currentWord: GameWord?
     @Published var showHint = false
+    @Published var selectedType: Int = 0
     
-    private var selectedType: Int = 0
+    let types = ["詞語", "成語"]
     
     func updateSelectedType(_ type: Int) {
         selectedType = type

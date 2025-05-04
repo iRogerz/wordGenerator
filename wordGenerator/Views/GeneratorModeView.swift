@@ -3,18 +3,13 @@ import SwiftData
 
 struct GeneratorModeView: View {
     @Binding var navigationPath: NavigationPath
-    @State private var selectedType = 0
-    @State private var currentWord: GameWord?
-    @State private var showHint = false
-    @Environment(\.modelContext) private var modelContext
-    
-    let types = ["詞語", "成語"]
+    @StateObject private var viewModel = GeneratorModeViewModel()
     
     var body: some View {
         VStack {
-            Picker("選擇類型", selection: $selectedType) {
-                ForEach(0..<types.count, id: \.self) { index in
-                    Text(types[index]).tag(index)
+            Picker("選擇類型", selection: $viewModel.selectedType) {
+                ForEach(0..<viewModel.types.count, id: \.self) { index in
+                    Text(viewModel.types[index]).tag(index)
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
@@ -22,14 +17,14 @@ struct GeneratorModeView: View {
             
             Spacer()
             
-            if let word = currentWord {
+            if let word = viewModel.currentWord {
                 Text(word.name)
                     .font(.system(size: 40))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .padding()
                 
-                if showHint {
+                if viewModel.showHint {
                     Text(word.note)
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -41,7 +36,7 @@ struct GeneratorModeView: View {
             
             HStack(spacing: 20) {
                 Button(action: {
-                    generateNewWord()
+                    viewModel.generateNewWord()
                 }) {
                     Text("產生詞彙")
                         .font(.title2)
@@ -52,7 +47,7 @@ struct GeneratorModeView: View {
                 }
                 
                 Button(action: {
-                    showHint.toggle()
+                    viewModel.toggleHint()
                 }) {
                     Text("提示")
                         .font(.title2)
@@ -67,23 +62,8 @@ struct GeneratorModeView: View {
         .padding()
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            generateNewWord()
+            viewModel.generateNewWord()
         }
-    }
-    
-    private func generateNewWord() {
-        let type: WordType?
-        switch selectedType {
-        case 0:
-            type = .simple
-        case 1:
-            type = .idiom
-        default:
-            type = nil
-        }
-        
-        currentWord = WordManager.shared.getRandomWord(type: type)
-        showHint = false
     }
 }
 
