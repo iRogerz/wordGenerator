@@ -5,85 +5,68 @@
 //  Created by Roger Tseng on 2025/4/18.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
+
 
 struct ContentView: View {
-    @State private var navigationPath = NavigationPath()
-    @Environment(\.modelContext) private var modelContext
-    
-    var body: some View {
-        NavigationStack(path: $navigationPath) {
-            VStack(spacing: 30) {
-              
-              Spacer()
-              
-                Text("猜詞王")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding(.bottom, 50)
-                
-                Button(action: {
-                    navigationPath.append("gameMode")
-                }) {
-                    ModeButton(title: "遊玩模式", description: "限時挑戰，考驗反應力")
-                }
-                
-                Button(action: {
-                    navigationPath.append("generatorMode")
-                }) {
-                    ModeButton(title: "一般模式", description: "自由產生字詞")
-                }
-              
-              Spacer()
-              
-              Text("資料來源：教育部《國語辭典簡編本》, 《成語典》")
-                .font(.footnote)
-                .foregroundColor(.gray.opacity(0.8))
-              
-            }
-            .padding()
-            .navigationDestination(for: String.self) { destination in
-                switch destination {
-                case "gameMode":
-                    GameModeView(navigationPath: $navigationPath)
-                case "generatorMode":
-                    GeneratorModeView(navigationPath: $navigationPath)
-                default:
-                    EmptyView()
-                }
-            }
-            .navigationDestination(for: GameConfig.self) { config in
-                GamePlayView(timeLimit: config.timeLimit, wordLengths: config.wordLengths, navigationPath: $navigationPath)
-            }
-        }
-        .onAppear {
-            DataImporter.importIfNeeded(context: modelContext)
-            WordManager.shared.loadAllWords(context: modelContext)
-        }
-    }
-}
+  @State private var navigationPath = NavigationPath()
+  @Environment(\.modelContext) private var modelContext
 
-struct ModeButton: View {
-    let title: String
-    let description: String
-    
-    var body: some View {
-        VStack {
-            Text(title)
-                .font(.title2)
-                .fontWeight(.bold)
-            Text(description)
-                .font(.subheadline)
-                .foregroundColor(.gray)
+  var body: some View {
+    NavigationStack(path: $navigationPath) {
+      VStack {
+        Image(.Home.icon)
+          .resizable()
+          .frame(width: 180, height: 180)
+
+        VStack(spacing: 40) {
+          Button(action: {
+            navigationPath.append("gameMode")
+          }) {
+            ModeButton(title: "遊戲模式", image: .Home.gameMode, mainColor: .Primary.orange, buttonType: .right)
+              .padding(.horizontal, 40)
+          }
+          
+          Button(action: {
+            navigationPath.append("generatorMode")
+          }) {
+            ModeButton(title: "一般模式", image: .Home.generalMode, mainColor: .Primary.deepBlue, buttonType: .left)
+              .padding(.horizontal, 40)
+          }
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.blue.opacity(0.1))
-        .cornerRadius(10)
+        .buttonStyle(NoAnimationButtonStyle())
+        
+        
+        Spacer().frame(height: 70)
+
+        Text("資料來源：教育部《國語辭典簡編本》, 《成語典》")
+          .font(.footnote)
+          .foregroundColor(.gray.opacity(0.8))
+      }
+      .padding()
+      .background(Color.Background.yellow)
+      .navigationDestination(for: String.self) { destination in
+        switch destination {
+        case "gameMode":
+          GameModeView(navigationPath: $navigationPath)
+        case "generatorMode":
+          GeneratorModeView(navigationPath: $navigationPath)
+        default:
+          EmptyView()
+        }
+      }
+      .navigationDestination(for: GameConfig.self) { config in
+        GamePlayView(timeLimit: config.timeLimit, wordLengths: config.wordLengths, navigationPath: $navigationPath)
+      }
     }
+    .onAppear {
+      DataImporter.importIfNeeded(context: modelContext)
+      WordManager.shared.loadAllWords(context: modelContext)
+    }
+  }
 }
 
 #Preview {
-    ContentView()
+  ContentView()
 }
