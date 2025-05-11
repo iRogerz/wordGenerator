@@ -87,10 +87,12 @@ struct GameSettingModeView: View {
                 Text("開始遊戲")
                     .font(.title2)
                     .foregroundColor(.white)
+                    .bold()
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(Color.Primary.orange)
                     .cornerRadius(10)
+                    .shadow(radius: 2)
             }
             .padding(.horizontal)
           
