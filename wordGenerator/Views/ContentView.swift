@@ -49,7 +49,7 @@ struct ContentView: View {
       .navigationDestination(for: String.self) { destination in
         switch destination {
         case "gameMode":
-          GameModeView(navigationPath: $navigationPath)
+          GameSettingModeView(navigationPath: $navigationPath)
         case "generatorMode":
           GeneratorModeView(navigationPath: $navigationPath)
         default:

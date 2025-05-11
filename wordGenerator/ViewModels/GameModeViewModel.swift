@@ -28,25 +28,16 @@ enum WordLengthOption: Hashable, CaseIterable {
 
 class GameModeViewModel: ObservableObject {
     @Published var selectedTimeLimit = 30
-    @Published var selectedWordTypes: Set<WordType> = [.simple]
+    @Published var selectedWordTypeIndex: Int = 0 // 0: simple, 1: idiom
     @Published var selectedWordLengths: Set<WordLengthOption> = Set(WordLengthOption.allCases)
     
     func getGameConfig() -> GameConfig {
         var wordLengths = Set<Int>()
-        if selectedWordTypes.contains(.idiom) && !selectedWordTypes.contains(.simple) {
+        if selectedWordTypeIndex == 1 {
             wordLengths = [4]
-        } else if selectedWordTypes.contains(.simple) {
-            // 合併所有勾選長度
+        } else {
             wordLengths = Set(selectedWordLengths.flatMap { $0.allLengths })
         }
         return GameConfig(timeLimit: selectedTimeLimit, wordLengths: wordLengths)
-    }
-    
-    func updateWordTypes(_ newValue: Set<WordType>) {
-        if newValue.isEmpty {
-           selectedWordTypes = Set([.simple])
-        } else {
-            selectedWordTypes = newValue
-        }
     }
 } 

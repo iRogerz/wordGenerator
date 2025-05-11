@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum WordType: String, Codable, CaseIterable {
-    case simple = "一般詞語"
+    case simple = "詞語"
     case idiom = "成語"
 }
 

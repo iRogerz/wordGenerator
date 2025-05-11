@@ -18,58 +18,100 @@ struct GamePlayView: View {
     
     var body: some View {
         ZStack {
-            Color.black.edgesIgnoringSafeArea(.all)
+            Color.Background.lightYellow.ignoresSafeArea()
             
             if !viewModel.isGameStarted {
                 VStack {
                     Text("\(viewModel.countdown)")
                         .font(.system(size: 120))
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.Primary.deepBlue)
                 }
             } else {
+              ZStack {
+                
                 VStack {
-                    Text("剩餘時間：\(viewModel.remainingTime)秒")
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding()
+                  HStack {
+                    Button(action: {
+                      navigationPath.removeLast()
+                    }) {
+                      Text("Back")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.Primary.deepBlue)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 28)
+                        .background(Color.Primary.orange)
+                        .cornerRadius(20)
+                    }
+                    .padding(.leading, 24)
+                    .padding(.top, 24)
                     
                     Spacer()
-                    
-                    if let word = viewModel.currentWord {
-                        Text(word.name)
-                            .font(.system(size: 60))
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .padding()
-                    }
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 30) {
-                        VStack {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.green)
-                            Text("\(viewModel.correctCount)")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                        }
-                        
-                        VStack {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.red)
-                            Text("\(viewModel.wrongCount)")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                        }
-                    }
-                    .padding()
+                  }
+                  Spacer()
                 }
+                
+                VStack {
+                  HStack {
+                    Spacer()
+                    Text("剩餘時間：\(viewModel.remainingTime)秒")
+                      .font(.title)
+                      .fontWeight(.bold)
+                      .foregroundColor(.Primary.deepBlue)
+                      .padding(.vertical, 10)
+                      .padding(.horizontal, 32)
+                      .background(Color.Primary.orange)
+                      .cornerRadius(20)
+                    
+                    Spacer()
+                  }
+                  .padding(.top, 32)
+                  
+                  
+                  Spacer()
+                  
+                  if let word = viewModel.currentWord {
+                    Text(word.name)
+                      .font(.system(size: 90, weight: .bold))
+                      .foregroundColor(.Primary.deepBlue)
+                      .multilineTextAlignment(.center)
+                      .padding(.vertical, 24)
+                  }
+                  Spacer()
+                  HStack(spacing: 20) {
+                    ZStack {
+                      Circle()
+                        .fill(Color.green)
+                        .frame(width: 50, height: 50)
+                      Image(systemName: "checkmark")
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundColor(.white)
+                    }
+                    Text("\(viewModel.correctCount)")
+                      .font(.title)
+                      .fontWeight(.bold)
+                      .foregroundColor(.Primary.deepBlue)
+                    ZStack {
+                      Circle()
+                        .fill(Color.red)
+                        .frame(width: 50, height: 50)
+                      Image(systemName: "xmark")
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundColor(.white)
+                    }
+                    Text("\(viewModel.wrongCount)")
+                      .font(.title)
+                      .fontWeight(.bold)
+                      .foregroundColor(.Primary.deepBlue)
+                  }
+//                  .padding(.bottom, 10)
+                  Spacer()
+                }
+              }
             }
         }
+        .navigationBarBackButtonHidden()
         .overlay(
             RoundedRectangle(cornerRadius: 20)
                 .stroke(viewModel.resultColor, lineWidth: 5)
