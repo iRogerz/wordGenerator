@@ -52,14 +52,14 @@ class WordManager {
     }
 }
 
-struct GameWord: Codable {
+struct GameWord: Codable, Equatable, Hashable {
     let name: String
     let note: String
     let type: WordType
     let idiom: IdiomDetail?
 }
 
-struct IdiomDetail: Codable {
+struct IdiomDetail: Codable, Equatable, Hashable {
     let interpretation: String?
     let allusionDescription: String?
     let usageDescription: String?

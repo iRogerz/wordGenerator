@@ -74,6 +74,7 @@ struct GamePlayView: View {
                   if let word = viewModel.currentWord {
                     Text(word.name)
                       .font(.system(size: 90, weight: .bold))
+                      .minimumScaleFactor(0.5)
                       .foregroundColor(.Primary.deepBlue)
                       .multilineTextAlignment(.center)
                       .padding(.vertical, 24)
@@ -118,17 +119,16 @@ struct GamePlayView: View {
                 .padding()
         )
         .onAppear {
-            // 鎖定橫向
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
+             DispatchQueue.main.async {
+               AppDelegate.orientationLock = .landscapeRight
+               UIViewController.attemptRotationToDeviceOrientation()
+               viewModel.startNewGame()
             }
-            viewModel.startNewGame()
-        }
-        .onDisappear {
-            viewModel.stopGame()
-            // 解除鎖定
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+        }.onDisappear {
+            DispatchQueue.main.async {
+              viewModel.stopGame()
+              AppDelegate.orientationLock = .portrait
+              UIViewController.attemptRotationToDeviceOrientation()
             }
         }
         .fullScreenCover(isPresented: $viewModel.isGameOver, content: {

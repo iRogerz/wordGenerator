@@ -7,6 +7,9 @@ struct GeneratorModeView: View {
   
     var body: some View {
         VStack(spacing: 32) {
+          
+          Spacer().frame(height: 20)
+          
             CustomSegmentedControl(selectedIndex: $viewModel.selectedType, titles: viewModel.types)
           
           Spacer()
@@ -98,6 +101,21 @@ struct GeneratorModeView: View {
             }
             .padding(.bottom, 24)
         }
+        .toolbar {
+          ToolbarItem(placement: .topBarLeading) {
+            Button(action: {
+                navigationPath.removeLast(navigationPath.count)
+            }) {
+              Image(systemName: "chevron.backward")
+              Text("返回")
+            }
+            .font(.title3)
+            .bold()
+            .foregroundColor(.Primary.deepBlue)
+              
+          }
+        }
+        .navigationBarBackButtonHidden()
         .padding(.horizontal, 16)
         .background(Color.Background.lightYellow)
         .navigationBarTitleDisplayMode(.inline)

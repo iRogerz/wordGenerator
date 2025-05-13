@@ -98,6 +98,21 @@ struct GameSettingModeView: View {
           
           Spacer()
         }
+        .toolbar {
+          ToolbarItem(placement: .topBarLeading) {
+            Button(action: {
+                navigationPath.removeLast(navigationPath.count)
+            }) {
+              Image(systemName: "chevron.backward")
+              Text("返回")
+            }
+            .font(.title3)
+            .bold()
+            .foregroundColor(.Primary.deepBlue)
+              
+          }
+        }
+        .navigationBarBackButtonHidden()
         .padding()
         .background(Color.Background.lightYellow)
     }

@@ -7,9 +7,12 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 @main
 struct wordGeneratorApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+  
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             SimpleWord.self,
@@ -29,5 +32,14 @@ struct wordGeneratorApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+    }
+}
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+        
+    static var orientationLock = UIInterfaceOrientationMask.portrait
+
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return AppDelegate.orientationLock
     }
 }
