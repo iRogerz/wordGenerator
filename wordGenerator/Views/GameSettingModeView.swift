@@ -59,6 +59,9 @@ struct GameSettingModeView: View {
                         if isOn {
                           viewModel.selectedWordLengths.insert(option)
                         } else {
+                          if viewModel.selectedWordLengths.count == 1 {
+                            return
+                          }
                           viewModel.selectedWordLengths.remove(option)
                         }
                       }
