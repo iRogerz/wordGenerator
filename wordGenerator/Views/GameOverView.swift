@@ -8,17 +8,25 @@
 import Foundation
 import SwiftUI
 
+struct PlayedWord: Hashable, Equatable {
+    let word: GameWord
+    let isCorrect: Bool
+}
 
-
+struct GameOverRoute: Hashable, Equatable {
+    let score: Int
+    let correctCount: Int
+    let wrongCount: Int
+    let playedWords: [PlayedWord]
+}
 
 struct GameOverView: View {
     let score: Int
     let correctCount: Int
     let wrongCount: Int
-    let playedWords: [(word: GameWord, isCorrect: Bool)]
+    let playedWords: [PlayedWord]
     @Binding var navigationPath: NavigationPath
     let onRestart: () -> Void
-    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack {
@@ -28,14 +36,12 @@ struct GameOverView: View {
                     HStack {
                         Button(action: {
                             navigationPath.removeLast(navigationPath.count)
-                          dismiss()
                         }) {
                             Text("返回主畫面")
                         }
                         .buttonStyle(OutlinedButtonStyle())
                         Spacer()
                         Button(action: {
-                            dismiss()
                             onRestart()
                         }) {
                             Text("再玩一次")
@@ -112,6 +118,7 @@ struct GameOverView: View {
                 .padding(.vertical, 20)
             }
         }
+        .navigationBarBackButtonHidden()
     }
 }
 
@@ -122,18 +129,24 @@ struct GameOverView: View {
       correctCount: 6,
       wrongCount: 9,
       playedWords: [
-          (word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false),
-          (word: GameWord(name: "杞人憂天", note: "", type: .simple, idiom: nil), isCorrect: true),
-          (word: GameWord(name: "吐血", note: "", type: .simple, idiom: nil), isCorrect: true),
-          (word: GameWord(name: "賤高", note: "", type: .simple, idiom: nil), isCorrect: true),
-          (word: GameWord(name: "百繭", note: "", type: .simple, idiom: nil), isCorrect: true),
-          (word: GameWord(name: "初生之犢不畏虎", note: "", type: .simple, idiom: nil), isCorrect: true),
-          (word: GameWord(name: "豔莊", note: "", type: .simple, idiom: nil), isCorrect: false),
-          (word: GameWord(name: "鞭辟入裡", note: "", type: .simple, idiom: nil), isCorrect: false),
-          (word: GameWord(name: "一箭雙鵰", note: "", type: .simple, idiom: nil), isCorrect: false),
-          (word: GameWord(name: "畫蛇添足", note: "", type: .simple, idiom: nil), isCorrect: false),
-          (word: GameWord(name: "一舉兩得", note: "", type: .simple, idiom: nil), isCorrect: false),
+        PlayedWord(word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false),
+        PlayedWord(word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false),
+        PlayedWord(word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false),
+        PlayedWord(word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false)
       ],
+//      playedWords: [
+//          (word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false),
+//          (word: GameWord(name: "杞人憂天", note: "", type: .simple, idiom: nil), isCorrect: true),
+//          (word: GameWord(name: "吐血", note: "", type: .simple, idiom: nil), isCorrect: true),
+//          (word: GameWord(name: "賤高", note: "", type: .simple, idiom: nil), isCorrect: true),
+//          (word: GameWord(name: "百繭", note: "", type: .simple, idiom: nil), isCorrect: true),
+//          (word: GameWord(name: "初生之犢不畏虎", note: "", type: .simple, idiom: nil), isCorrect: true),
+//          (word: GameWord(name: "豔莊", note: "", type: .simple, idiom: nil), isCorrect: false),
+//          (word: GameWord(name: "鞭辟入裡", note: "", type: .simple, idiom: nil), isCorrect: false),
+//          (word: GameWord(name: "一箭雙鵰", note: "", type: .simple, idiom: nil), isCorrect: false),
+//          (word: GameWord(name: "畫蛇添足", note: "", type: .simple, idiom: nil), isCorrect: false),
+//          (word: GameWord(name: "一舉兩得", note: "", type: .simple, idiom: nil), isCorrect: false),
+//      ],
       navigationPath: $path,
       onRestart: {}
   )

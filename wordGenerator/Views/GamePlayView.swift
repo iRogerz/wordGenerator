@@ -130,20 +130,17 @@ struct GamePlayView: View {
               AppDelegate.orientationLock = .portrait
               UIViewController.attemptRotationToDeviceOrientation()
             }
+        }.onChange(of: viewModel.isGameOver) { isGameOver in
+            if isGameOver {
+                navigationPath.append(GameOverRoute(
+                    score: viewModel.score,
+                    correctCount: viewModel.correctCount,
+                    wrongCount: viewModel.wrongCount,
+                    playedWords: viewModel.playedWords
+                ))
+                viewModel.isGameOver = false
+            }
         }
-        .fullScreenCover(isPresented: $viewModel.isGameOver, content: {
-          GameOverView(
-              score: viewModel.score,
-              correctCount: viewModel.correctCount,
-              wrongCount: viewModel.wrongCount,
-              playedWords: viewModel.playedWords,
-              navigationPath: $navigationPath,
-              onRestart: {
-                  viewModel.isGameOver = false
-                  viewModel.startNewGame()
-              }
-          )
-        })
     }
 }
 

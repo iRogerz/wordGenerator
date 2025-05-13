@@ -16,7 +16,7 @@ class GamePlayViewModel: ObservableObject {
     @Published var resultColor: Color = .clear
     @Published var countdown = 3
     @Published var isGameStarted = false
-    @Published var playedWords: [(word: GameWord, isCorrect: Bool)] = []
+    @Published var playedWords: [PlayedWord] = []
     
     // MARK: - Private Properties
     private let timeLimit: Int
@@ -130,7 +130,7 @@ class GamePlayViewModel: ObservableObject {
                     self.correctCount += 1
                     self.resultColor = .green
                     if let word = self.currentWord {
-                        self.playedWords.append((word: word, isCorrect: true))
+                        self.playedWords.append(PlayedWord(word: word, isCorrect: true))
                     }
                 } else {
                     // 向上傾斜：答錯
@@ -138,7 +138,7 @@ class GamePlayViewModel: ObservableObject {
                     self.wrongCount += 1
                     self.resultColor = .red
                     if let word = self.currentWord {
-                        self.playedWords.append((word: word, isCorrect: false))
+                        self.playedWords.append(PlayedWord(word: word, isCorrect: false))
                     }
                 }
                 AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)

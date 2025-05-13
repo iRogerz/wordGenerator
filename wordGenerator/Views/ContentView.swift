@@ -59,6 +59,18 @@ struct ContentView: View {
       .navigationDestination(for: GameConfig.self) { config in
         GamePlayView(timeLimit: config.timeLimit, wordLengths: config.wordLengths, navigationPath: $navigationPath)
       }
+      .navigationDestination(for: GameOverRoute.self) { route in
+        GameOverView(
+          score: route.score,
+          correctCount: route.correctCount,
+          wrongCount: route.wrongCount,
+          playedWords: route.playedWords,
+          navigationPath: $navigationPath,
+          onRestart: {
+            navigationPath.removeLast()
+          }
+        )
+      }
     }
     .onAppear {
       DataImporter.importIfNeeded(context: modelContext)
