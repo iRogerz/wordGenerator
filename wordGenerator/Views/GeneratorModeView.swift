@@ -4,13 +4,14 @@ import SwiftData
 struct GeneratorModeView: View {
     @Binding var navigationPath: NavigationPath
     @StateObject private var viewModel = GeneratorModeViewModel()
+    @State private var localSelectedType: Int = 0
   
     var body: some View {
         VStack(spacing: 32) {
           
           Spacer().frame(height: 20)
           
-            CustomSegmentedControl(selectedIndex: $viewModel.selectedType, titles: viewModel.types)
+            CustomSegmentedControl(selectedIndex: $localSelectedType, titles: viewModel.types)
           
           Spacer()
           
@@ -37,7 +38,7 @@ struct GeneratorModeView: View {
             .padding(.horizontal, 4)
             
             // 提示卡片
-          if viewModel.showHint {
+          if viewModel.showHint, viewModel.currentWord != nil {
             ZStack {
               RoundedRectangle(cornerRadius: 14)
                 .stroke(Color.Primary.orange.opacity(0.5), lineWidth: 4)
@@ -120,7 +121,10 @@ struct GeneratorModeView: View {
         .background(Color.Background.lightYellow)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            viewModel.generateNewWord()
+            localSelectedType = viewModel.selectedType
+        }
+        .onChange(of: localSelectedType) { newValue in
+            viewModel.updateSelectedType(newValue)
         }
     }
 }

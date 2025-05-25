@@ -10,6 +10,7 @@ class GeneratorModeViewModel: ObservableObject {
     
     func updateSelectedType(_ type: Int) {
         selectedType = type
+        currentWord = nil
     }
     
     func generateNewWord() {

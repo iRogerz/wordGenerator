@@ -94,6 +94,12 @@ class GamePlayViewModel: ObservableObject {
             } else {
                 timer.invalidate()
                 self.stopMotionUpdates()
+                if let word = self.currentWord {
+                    let alreadyRecorded = self.playedWords.last?.word == word
+                    if !alreadyRecorded {
+                        self.playedWords.append(PlayedWord(word: word, isCorrect: false))
+                    }
+                }
                 self.isGameOver = true
             }
         }
