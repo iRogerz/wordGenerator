@@ -24,8 +24,8 @@ class WordManager {
     func getRandomWord(type: WordType? = nil, lengths: Set<Int>? = nil) -> GameWord? {
         switch type {
         case .idiom:
-            let filtered = lengths == nil ? idiomWords : idiomWords.filter { lengths!.contains($0.name.count) }
-            guard let idiom = filtered.randomElement() else { return nil }
+            // 成語直接隨機取，不篩選長度
+            guard let idiom = idiomWords.randomElement() else { return nil }
             return GameWord(
                 name: idiom.name,
                 note: idiom.note,
