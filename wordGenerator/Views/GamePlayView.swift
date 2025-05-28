@@ -6,13 +6,12 @@ import SwiftData
 struct GamePlayView: View {
     let timeLimit: Int
     let wordLengths: Set<Int>
-    @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var router: AppRouter
     @StateObject private var viewModel: GamePlayViewModel
     
-    init(timeLimit: Int, wordLengths: Set<Int>, navigationPath: Binding<NavigationPath>) {
+    init(timeLimit: Int, wordLengths: Set<Int>) {
         self.timeLimit = timeLimit
         self.wordLengths = wordLengths
-        self._navigationPath = navigationPath
         _viewModel = StateObject(wrappedValue: GamePlayViewModel(timeLimit: timeLimit, wordLengths: wordLengths))
     }
     
@@ -33,7 +32,7 @@ struct GamePlayView: View {
                 VStack {
                   HStack {
                     Button(action: {
-                      navigationPath.removeLast()
+                      router.pop()
                     }) {
                       Text("Back")
                         .font(.title2)
@@ -132,12 +131,12 @@ struct GamePlayView: View {
             }
         }.onChange(of: viewModel.isGameOver) { isGameOver in
             if isGameOver {
-                navigationPath.append(GameOverRoute(
+                router.push(.gameOver(GameOverRoute(
                     score: viewModel.score,
                     correctCount: viewModel.correctCount,
                     wrongCount: viewModel.wrongCount,
                     playedWords: viewModel.playedWords
-                ))
+                )))
                 viewModel.isGameOver = false
             }
         }
@@ -145,5 +144,5 @@ struct GamePlayView: View {
 }
 
 #Preview {
-    GamePlayView(timeLimit: 60, wordLengths: [2, 3, 4], navigationPath: .constant(NavigationPath()))
+    GamePlayView(timeLimit: 60, wordLengths: [2, 3, 4]).environmentObject(AppRouter())
 }

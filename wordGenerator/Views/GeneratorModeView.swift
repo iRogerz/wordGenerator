@@ -1,8 +1,7 @@
 import SwiftUI
-import SwiftData
 
 struct GeneratorModeView: View {
-    @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var router: AppRouter
     @StateObject private var viewModel = GeneratorModeViewModel()
     @State private var localSelectedType: Int = 0
   
@@ -105,7 +104,7 @@ struct GeneratorModeView: View {
         .toolbar {
           ToolbarItem(placement: .topBarLeading) {
             Button(action: {
-                navigationPath.removeLast(navigationPath.count)
+                router.pop()
             }) {
               Image(systemName: "chevron.backward")
               Text("返回")
@@ -130,5 +129,5 @@ struct GeneratorModeView: View {
 }
 
 #Preview {
-    GeneratorModeView(navigationPath: .constant(NavigationPath()))
+    GeneratorModeView().environmentObject(AppRouter())
 } 

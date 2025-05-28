@@ -25,7 +25,7 @@ struct GameOverView: View {
     let correctCount: Int
     let wrongCount: Int
     let playedWords: [PlayedWord]
-    @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var router: AppRouter
     let onRestart: () -> Void
     
     var body: some View {
@@ -35,7 +35,7 @@ struct GameOverView: View {
                 VStack(spacing: 24) {
                     HStack {
                         Button(action: {
-                            navigationPath.removeLast(navigationPath.count)
+                            router.pop()
                         }) {
                             Text("返回主畫面")
                         }
@@ -123,7 +123,6 @@ struct GameOverView: View {
 }
 
 #Preview {
-  @Previewable @State var path = NavigationPath()
   GameOverView(
       score: 88,
       correctCount: 6,
@@ -134,23 +133,8 @@ struct GameOverView: View {
         PlayedWord(word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false),
         PlayedWord(word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false)
       ],
-//      playedWords: [
-//          (word: GameWord(name: "脫位", note: "", type: .simple, idiom: nil), isCorrect: false),
-//          (word: GameWord(name: "杞人憂天", note: "", type: .simple, idiom: nil), isCorrect: true),
-//          (word: GameWord(name: "吐血", note: "", type: .simple, idiom: nil), isCorrect: true),
-//          (word: GameWord(name: "賤高", note: "", type: .simple, idiom: nil), isCorrect: true),
-//          (word: GameWord(name: "百繭", note: "", type: .simple, idiom: nil), isCorrect: true),
-//          (word: GameWord(name: "初生之犢不畏虎", note: "", type: .simple, idiom: nil), isCorrect: true),
-//          (word: GameWord(name: "豔莊", note: "", type: .simple, idiom: nil), isCorrect: false),
-//          (word: GameWord(name: "鞭辟入裡", note: "", type: .simple, idiom: nil), isCorrect: false),
-//          (word: GameWord(name: "一箭雙鵰", note: "", type: .simple, idiom: nil), isCorrect: false),
-//          (word: GameWord(name: "畫蛇添足", note: "", type: .simple, idiom: nil), isCorrect: false),
-//          (word: GameWord(name: "一舉兩得", note: "", type: .simple, idiom: nil), isCorrect: false),
-//      ],
-      navigationPath: $path,
       onRestart: {}
-  )
-  .previewInterfaceOrientation(.landscapeLeft)
+  ).environmentObject(AppRouter())
 }
 
 

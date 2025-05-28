@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct GameSettingModeView: View {
+    @EnvironmentObject var router: AppRouter
     @StateObject private var viewModel = GameModeViewModel()
-    @Binding var navigationPath: NavigationPath
     
     var body: some View {
         VStack(spacing: 30) {
@@ -85,7 +85,7 @@ struct GameSettingModeView: View {
             .padding()
             
             Button(action: {
-                navigationPath.append(viewModel.getGameConfig())
+                router.push(.gamePlay(viewModel.getGameConfig()))
             }) {
                 Text("開始遊戲")
                     .font(.title2)
@@ -104,7 +104,7 @@ struct GameSettingModeView: View {
         .toolbar {
           ToolbarItem(placement: .topBarLeading) {
             Button(action: {
-                navigationPath.removeLast(navigationPath.count)
+                router.pop()
             }) {
               Image(systemName: "chevron.backward")
               Text("返回")
@@ -112,7 +112,6 @@ struct GameSettingModeView: View {
             .font(.title3)
             .bold()
             .foregroundColor(.Primary.deepBlue)
-              
           }
         }
         .navigationBarBackButtonHidden()
@@ -127,5 +126,5 @@ struct GameConfig: Hashable {
 }
 
 #Preview {
-  GameSettingModeView(navigationPath: .constant(NavigationPath()))
+  GameSettingModeView().environmentObject(AppRouter())
 } 
