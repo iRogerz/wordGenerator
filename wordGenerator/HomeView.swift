@@ -56,10 +56,13 @@ struct HomeView: View {
         switch route {
         case .gameMode:
           GameSettingModeView()
+            .enablePopGesture()
         case .generatorMode:
           GeneratorModeView()
+            .enablePopGesture()
         case .idiomFillIn:
           IdiomFillInView()
+            .enablePopGesture()
         case .gamePlay(let config):
           GamePlayView(timeLimit: config.timeLimit, wordLengths: config.wordLengths)
         case .gameOver(let overRoute):
@@ -75,6 +78,7 @@ struct HomeView: View {
         }
       }
     }
+    .tint(.Primary.deepBlue)
     .environmentObject(router)
     .onAppear {
       DataImporter.importIfNeeded(context: modelContext)

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct GameSettingModeView: View {
     @EnvironmentObject var router: AppRouter
-    @StateObject private var viewModel = GameModeViewModel()
+    @StateObject private var viewModel = GameSettingModeViewModel()
     
     var body: some View {
         VStack(spacing: 30) {

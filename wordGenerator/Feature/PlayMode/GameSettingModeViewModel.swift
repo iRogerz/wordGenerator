@@ -26,7 +26,7 @@ enum WordLengthOption: Hashable, CaseIterable {
     }
 }
 
-class GameModeViewModel: ObservableObject {
+class GameSettingModeViewModel: ObservableObject {
     @Published var selectedTimeLimit = 30
     @Published var selectedWordTypeIndex: Int = 0 // 0: simple, 1: idiom
     @Published var selectedWordLengths: Set<WordLengthOption> = Set(WordLengthOption.allCases)

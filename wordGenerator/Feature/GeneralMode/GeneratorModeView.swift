@@ -121,6 +121,7 @@ struct GeneratorModeView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             localSelectedType = viewModel.selectedType
+            viewModel.generateNewWord()
         }
         .onChange(of: localSelectedType) {
             viewModel.updateSelectedType(localSelectedType)
