@@ -61,12 +61,13 @@ struct IdiomFillInView: View {
                             .cornerRadius(8)
                             .frame(width: 180)
                             .submitLabel(.done)
-                            .onChange(of: viewModel.currentHintAnswer) { newHint in
+                            .onChange(of: viewModel.currentHintAnswer) {
+                                let newHint = viewModel.currentHintAnswer
                                 if !newHint.isEmpty && !answer.hasPrefix(newHint) {
                                     answer = newHint
                                 }
                             }
-                            .onChange(of: viewModel.currentWord) { _ in
+                            .onChange(of: viewModel.currentWord) {
                                 answer = ""
                             }
                         // 右側答對提示

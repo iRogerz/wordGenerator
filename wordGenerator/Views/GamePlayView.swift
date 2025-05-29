@@ -129,8 +129,8 @@ struct GamePlayView: View {
               AppDelegate.orientationLock = .portrait
               UIViewController.attemptRotationToDeviceOrientation()
             }
-        }.onChange(of: viewModel.isGameOver) { isGameOver in
-            if isGameOver {
+        }.onChange(of: viewModel.isGameOver) {
+            if viewModel.isGameOver {
                 router.push(.gameOver(GameOverRoute(
                     score: viewModel.score,
                     correctCount: viewModel.correctCount,

@@ -122,8 +122,8 @@ struct GeneratorModeView: View {
         .onAppear {
             localSelectedType = viewModel.selectedType
         }
-        .onChange(of: localSelectedType) { newValue in
-            viewModel.updateSelectedType(newValue)
+        .onChange(of: localSelectedType) {
+            viewModel.updateSelectedType(localSelectedType)
         }
     }
 }
