@@ -1,9 +1,21 @@
 import Foundation
 import SwiftData
+import SwiftUI
 
 class IdiomFillInViewModel: ObservableObject {
     @Published var currentWord: GameWord?
     @Published var maskedAllusion: String = ""
+    @Published var hintCount: Int = 0
+    
+    /// 目前提示到的答案內容
+    var currentHintAnswer: String {
+        guard let word = currentWord else { return "" }
+        if hintCount > 0 {
+            return String(word.name.prefix(hintCount))
+        } else {
+            return ""
+        }
+    }
     
     init() {
         generateNewQuestion()
@@ -27,6 +39,19 @@ class IdiomFillInViewModel: ObservableObject {
             currentWord = nil
             maskedAllusion = ""
         }
+        hintCount = 0 // 產生新題時重置提示
+    }
+    
+    // 提示：顯示下一個字
+    func revealNextHint() {
+        guard let word = currentWord else { return }
+        if hintCount < word.name.count {
+            hintCount += 1
+        }
+    }
+    // 重置提示
+    func resetHint() {
+        hintCount = 0
     }
     
     // AB 計算邏輯
@@ -57,5 +82,36 @@ class IdiomFillInViewModel: ObservableObject {
             }
         }
         return (a, b)
+    }
+
+    // 顯示用：根據答題狀態產生 AttributedString，square 為紅色，答對時原字為綠色
+    func maskedAllusionDisplay(answer: String) -> AttributedString {
+        guard let word = currentWord else { return AttributedString(maskedAllusion) }
+        let ab = abResult(for: answer)
+        if ab.a == word.name.count && word.name.count > 0 {
+            guard let allusion = word.idiom?.allusionDescription else { return AttributedString("") }
+            var attr = AttributedString(allusion)
+            let idiomSet = Set(word.name).subtracting([" "])
+            for (i, char) in attr.characters.enumerated() {
+                if idiomSet.contains(char) {
+                    let start = attr.characters.index(attr.characters.startIndex, offsetBy: i)
+                    let end = attr.characters.index(after: start)
+                    let range = start..<end
+                    attr[range].foregroundColor = .green
+                }
+            }
+            return attr
+        } else {
+            var attr = AttributedString(maskedAllusion)
+            for (i, char) in attr.characters.enumerated() {
+                if char == "□" {
+                    let start = attr.characters.index(attr.characters.startIndex, offsetBy: i)
+                    let end = attr.characters.index(after: start)
+                    let range = start..<end
+                    attr[range].foregroundColor = .red
+                }
+            }
+            return attr
+        }
     }
 } 

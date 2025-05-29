@@ -4,6 +4,7 @@ struct IdiomFillInView: View {
     @EnvironmentObject var router: AppRouter
     @State private var answer: String = ""
     @StateObject private var viewModel = IdiomFillInViewModel()
+    @State private var isKeyboardPresented: Bool = false
     
     var body: some View {
         ZStack {
@@ -15,7 +16,7 @@ struct IdiomFillInView: View {
                 Text("成語填空")
                     .font(.system(size: 40, weight: .bold))
                     .foregroundColor(Color.Primary.deepBlue)
-//                    .padding(.top, 16)
+                    .padding(.top, 16)
                 
                 // 古語典故區塊
                 VStack(alignment: .center, spacing: 12) {
@@ -24,7 +25,7 @@ struct IdiomFillInView: View {
                         .bold()
                         .foregroundColor(Color.Primary.deepBlue)
                     ScrollView {
-                        Text(viewModel.maskedAllusion)
+                        Text(viewModel.maskedAllusionDisplay(answer: answer))
                             .font(.system(size: 20))
                             .foregroundColor(Color.Primary.deepBlue)
                             .multilineTextAlignment(.leading)
@@ -53,27 +54,21 @@ struct IdiomFillInView: View {
                             .foregroundColor(.Primary.orange)
                             .frame(width: 60, alignment: .trailing)
                         // 輸入框
-                        TextField("請輸入", text: Binding(
-                            get: {
-                                if let word = viewModel.currentWord {
-                                    return String(answer.prefix(word.name.count))
-                                } else {
-                                    return answer
-                                }
-                            },
-                            set: { newValue in
-                                if let word = viewModel.currentWord {
-                                    answer = String(newValue.prefix(word.name.count))
-                                } else {
-                                    answer = newValue
+                        TextField("請輸入", text: $answer)
+                            .font(.system(size: 38, weight: .bold))
+                            .multilineTextAlignment(.center)
+                            .minimumScaleFactor(0.6)
+                            .cornerRadius(8)
+                            .frame(width: 180)
+                            .submitLabel(.done)
+                            .onChange(of: viewModel.currentHintAnswer) { newHint in
+                                if !newHint.isEmpty && !answer.hasPrefix(newHint) {
+                                    answer = newHint
                                 }
                             }
-                        ))
-                        .font(.system(size: 38, weight: .bold))
-                        .multilineTextAlignment(.center)
-                        .cornerRadius(8)
-                        .frame(width: 180)
-                        .submitLabel(.done)
+                            .onChange(of: viewModel.currentWord) { _ in
+                                answer = ""
+                            }
                         // 右側答對提示
                         if let word = viewModel.currentWord, ab.a == word.name.count && word.name.count > 0 {
                             Text("答對！")
@@ -102,6 +97,8 @@ struct IdiomFillInView: View {
                 HStack(spacing: 32) {
                     Button(action: {
                         // 提示功能
+                        viewModel.revealNextHint()
+                        answer = viewModel.currentHintAnswer
                     }) {
                         HStack {
                             Image(systemName: "lightbulb")
@@ -148,19 +145,26 @@ struct IdiomFillInView: View {
         }
         .toolbar {
           ToolbarItem(placement: .topBarLeading) {
-            Button(action: {
-              router.pop()
-            }) {
-              Image(systemName: "chevron.backward")
-              Text("返回")
+            if !isKeyboardPresented {
+              Button(action: {
+                router.pop()
+              }) {
+                Image(systemName: "chevron.backward")
+                Text("返回")
+              }
+              .font(.title3)
+              .bold()
+              .foregroundColor(.Primary.deepBlue)
             }
-            .font(.title3)
-            .bold()
-            .foregroundColor(.Primary.deepBlue)
-              
           }
         }
         .navigationBarBackButtonHidden()
+        .onReceive(keyboardPublisher, perform: { value in
+          isKeyboardPresented = value
+        })
+        .onDisappear {
+          NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        }
     }
 }
 
