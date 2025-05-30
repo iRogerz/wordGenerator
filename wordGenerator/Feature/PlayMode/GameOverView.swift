@@ -35,7 +35,7 @@ struct GameOverView: View {
                 VStack(spacing: 24) {
                     HStack {
                         Button(action: {
-                            router.pop()
+                           router.reset()
                         }) {
                             Text("返回主畫面")
                         }

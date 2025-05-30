@@ -14,44 +14,48 @@ struct HomeView: View {
 
   var body: some View {
     NavigationStack(path: $router.path) {
-      VStack {
-        Image(.Home.icon)
-          .resizable()
-          .frame(width: 180, height: 180)
-
-        // 卡片直向滑動區塊
-        ScrollView(.vertical, showsIndicators: false) {
-          VStack(spacing: 32) {
-            Button(action: {
-              router.push(.gameMode)
-            }) {
-              ModeButton(title: "遊戲模式", image: .Home.gameMode, mainColor: .Primary.orange, buttonType: .right)
-                .padding(.horizontal, 40)
-            }
-            Button(action: {
-              router.push(.generatorMode)
-            }) {
-              ModeButton(title: "一般模式", image: .Home.generalMode, mainColor: .Primary.deepBlue, buttonType: .left)
-                .padding(.horizontal, 40)
-            }
-            Button(action: {
-              router.push(.idiomFillIn)
-            }) {
-              ModeButton(title: "成語填空", image: .Home.idiomFill, mainColor: .Primary.orange, buttonType: .right)
-                .padding(.horizontal, 40)
+      ZStack {
+        Color.Background.yellow
+          .ignoresSafeArea()
+        VStack {
+          
+          // 卡片直向滑動區塊
+          ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 32) {
+              Image(.Home.icon)
+                .resizable()
+                .frame(width: 180, height: 180)
+              
+              Button(action: {
+                router.push(.gameMode)
+              }) {
+                ModeButton(title: "遊戲模式", image: .Home.gameMode, mainColor: .Primary.orange, buttonType: .right)
+                  .padding(.horizontal, 40)
+              }
+              Button(action: {
+                router.push(.generatorMode)
+              }) {
+                ModeButton(title: "一般模式", image: .Home.generalMode, mainColor: .Primary.deepBlue, buttonType: .left)
+                  .padding(.horizontal, 40)
+              }
+              Button(action: {
+                router.push(.idiomFillIn)
+              }) {
+                ModeButton(title: "成語填空", image: .Home.idiomFill, mainColor: .Primary.orange, buttonType: .right)
+                  .padding(.horizontal, 40)
+              }
             }
           }
+          .frame(maxHeight: .infinity)
+          
+          Spacer().frame(height: 20)
+          
+          Text("資料來源：教育部《國語辭典簡編本》, 《成語典》")
+            .font(.footnote)
+            .foregroundColor(.Background.lightYellow)
         }
-        .frame(height: 550)
-        
-        Spacer().frame(height: 20)
-
-        Text("資料來源：教育部《國語辭典簡編本》, 《成語典》")
-          .font(.footnote)
-          .foregroundColor(.Background.lightYellow)
+        .padding()
       }
-      .padding()
-      .background(Color.Background.yellow)
       .navigationDestination(for: AppRoute.self) { route in
         switch route {
         case .gameMode:
