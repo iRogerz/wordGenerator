@@ -21,11 +21,11 @@ struct HomeView: View {
           
           // 卡片直向滑動區塊
           ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 32) {
-              Image(.Home.icon)
-                .resizable()
-                .frame(width: 180, height: 180)
-              
+            Image(.Home.icon)
+              .resizable()
+              .frame(width: 160, height: 160)
+            
+            VStack(spacing: 30) {
               Button(action: {
                 router.push(.gameMode)
               }) {
@@ -46,15 +46,15 @@ struct HomeView: View {
               }
             }
           }
-          .frame(maxHeight: .infinity)
           
-          Spacer().frame(height: 20)
+          Spacer().frame(height: 16)
           
           Text("資料來源：教育部《國語辭典簡編本》, 《成語典》")
             .font(.footnote)
             .foregroundColor(.Background.lightYellow)
         }
-        .padding()
+        .padding(.horizontal)
+        
       }
       .navigationDestination(for: AppRoute.self) { route in
         switch route {
