@@ -92,4 +92,8 @@ iOSInjectionProject/
 # macOS
 .DS_Store
 .AppleDouble
-.LSOverride 
+.LSOverride
+
+# Firebase
+GoogleService-Info.plist
+**/GoogleService-Info.plist
